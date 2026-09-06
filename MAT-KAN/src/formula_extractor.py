@@ -13,11 +13,6 @@ from sklearn.preprocessing import StandardScaler
 from .edge_extractor import EdgeCandidate
 from .kan_symbolic_eval import PRIMITIVES, evaluate_affine, parse_expr
 
-
-# ---------------------------------------------------------------------------
-# Result data classes
-# ---------------------------------------------------------------------------
-
 @dataclass
 class FormulaTerm:
     """One non-zero Lasso coefficient attached to a KAN-extracted expression."""
@@ -178,10 +173,6 @@ class ExtractionResult:
     artifacts: Dict[int, _ClusterArtifacts] = field(default_factory=dict)
 
 
-# ---------------------------------------------------------------------------
-# Extractor
-# ---------------------------------------------------------------------------
-
 class FormulaExtractor:
     """Distill KAN edges into compact symbolic formulas via Lasso."""
 
@@ -219,7 +210,6 @@ class FormulaExtractor:
 
         self.result_: ExtractionResult = ExtractionResult()
 
-    # ------------------------------------------------------------------ fit
 
     def fit(
         self,
@@ -347,8 +337,6 @@ class FormulaExtractor:
         self.result_ = result
         return self
 
-    # ---------------------------------------------------- polynomial parsing
-
     @staticmethod
     def _parse_polynomial_expr(expr: str) -> Optional[List[float]]:
         """Parse a polynomial expression like '0.5 + 0.3*x - 0.1*x^2 + 0.02*x^3'.
@@ -408,7 +396,6 @@ class FormulaExtractor:
 
         return coef
 
-    # ---------------------------------------------------- edge preparation
 
     def _prepare_edges(self, candidates: List[EdgeCandidate]) -> List[_StoredEdge]:
         """Reduce ``EdgeCandidate`` objects to the minimal symbolic description."""
@@ -477,8 +464,6 @@ class FormulaExtractor:
             head = head.split("*")[-1].strip()
         return head if head in PRIMITIVES else None
 
-    # ----------------------------------------------------- design matrix
-
     @staticmethod
     def _build_design_matrix(X: np.ndarray, edges: List[_StoredEdge]) -> np.ndarray:
         """Evaluate each symbolic expression on ``X`` to form the design matrix."""
@@ -515,7 +500,6 @@ class FormulaExtractor:
             return np.zeros((len(X), 0))
         return np.hstack(cols)
 
-    # ----------------------------------------------------- lasso selection
 
     def _fit_lasso(self, Phi: np.ndarray, y: np.ndarray, n: int) -> Tuple[Lasso, float]:
         if Phi.shape[1] == 0:
@@ -540,7 +524,6 @@ class FormulaExtractor:
         model.fit(Phi, y)
         return model, float(model.alpha_)
 
-    # -------------------------------------------------------------- predict
 
     def predict(self, X: np.ndarray, cluster_labels: np.ndarray) -> np.ndarray:
         """Piecewise predict: rebuild the design matrix with each cluster's edges

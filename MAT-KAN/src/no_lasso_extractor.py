@@ -27,11 +27,6 @@ from .formula_extractor import (
 )
 from .kan_symbolic_eval import evaluate_affine
 
-
-# ---------------------------------------------------------------------------
-# Result data classes
-# ---------------------------------------------------------------------------
-
 @dataclass
 class NoLassoArtifacts(_ClusterArtifacts):
     """Same as the LASSO artifacts but with a plain :class:`LinearRegression`."""
@@ -52,11 +47,6 @@ class NoLassoResult:
     y_pred_train: Dict[int, np.ndarray] = field(default_factory=dict)
     edges_per_cluster: Dict[int, List[dict]] = field(default_factory=dict)     # raw edge info
 
-
-# ---------------------------------------------------------------------------
-# Extractor
-# ---------------------------------------------------------------------------
-
 class NoLassoExtractor:
     """Stage IV ablation: fit OLS on the KAN edge design matrix (no sparsity)."""
 
@@ -68,8 +58,6 @@ class NoLassoExtractor:
         self.add_polynomial = add_polynomial
         self.poly_degree = poly_degree
         self.result_: NoLassoResult = NoLassoResult()
-
-    # ------------------------------------------------------------------ fit
 
     def fit(
         self,
@@ -226,8 +214,6 @@ class NoLassoExtractor:
 
         self.result_ = result
         return self
-
-    # ------------------------------------------------------------------ predict
 
     def predict(self, X: np.ndarray, cluster_labels: np.ndarray) -> np.ndarray:
         """Piecewise predict using each cluster's stored OLS coefficients."""

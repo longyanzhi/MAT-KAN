@@ -1,18 +1,5 @@
-"""Lasso-only baseline: sparse polynomial regression on the raw standardized descriptors.
-
-This module implements a minimal "no-KAN, no-clustering" ablation.  It applies
-the same Stage IV polynomial feature construction (x, x^2, x^3) used by
-``FormulaExtractor`` but skips both KAN edge extraction and K-means clustering.
-The single design matrix is fitted once with ``LassoCV`` over the same alpha
-range that MAT-KAN explores per cluster.
-
-The intent is to isolate the contribution of (a) the RandomForest feature
-selection at Stage I, (b) the K-means regime partitioning at Stage II, and
-(c) the KAN edge extraction at Stage III, by removing (b) and (c) at once.
-
-The number of non-zero terms is reported using the same |coef| > 5e-3
-threshold as ``FormulaExtractor.min_coef`` so the value is comparable across
-all ablation configurations.
+"""
+Lasso-only baseline: sparse polynomial regression on the raw standardized descriptors.
 """
 
 from __future__ import annotations
@@ -89,8 +76,6 @@ class LassoOnlyBaseline:
 
         self.result_: Optional[LassoOnlyResult] = None
 
-    # ------------------------------------------------------------------ build
-
     @staticmethod
     def _poly_feature_names(feature_names: List[str], degree: int) -> List[str]:
         """Return ``['x1', 'x1^2', 'x1^3', 'x2', ...]`` (no intercept)."""
@@ -109,8 +94,6 @@ class LassoOnlyBaseline:
         for d in range(1, self.poly_degree + 1):
             cols.append(X.astype(np.float64) ** d)
         return np.hstack(cols)
-
-    # ------------------------------------------------------------------ fit
 
     def fit(
         self,
@@ -185,8 +168,6 @@ class LassoOnlyBaseline:
         )
         return self
 
-    # ------------------------------------------------------------------ predict
-
     def predict(self, X: np.ndarray) -> np.ndarray:
         """Evaluate the Lasso on a new (n, d) descriptor matrix."""
         if self.result_ is None:
@@ -198,8 +179,6 @@ class LassoOnlyBaseline:
         except Exception:
             # Fall back to the train mean if the scaler cannot handle the input.
             return np.full(len(X), self.result_.intercept)
-
-    # ------------------------------------------------------------------ helpers
 
     def expression(self) -> str:
         """Return a human-readable LaTeX-style formula string of the non-zero terms."""
